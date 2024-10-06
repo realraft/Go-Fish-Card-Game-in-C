@@ -7,5 +7,3 @@
  * Go Fish uses a single deck
  */
 struct deck deck_instance;
-
-// hello
