@@ -9,6 +9,7 @@ int main(int args, char* argv[])
 
     start program while loop
     shuffle deck
+    deal cards to player and robot
 
     start current game while loop
     print hand and books

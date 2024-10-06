@@ -47,7 +47,62 @@ int shuffle() {
         deck_instance.list[random_index] = temp_card;
     }
 
-    deck_instance.top_card = 52; // ensure the last card is the top card
+    deck_instance.top_card = 51; // index of the top card after shuffle
 
     return 0;
+}
+
+/*
+ * Function: deal_player_cards
+ * ---------------------------
+ *  Deal 7 random cards to the player specified in the function.
+ *  Remove the dealt cards from the deck. 
+ *
+ *  target: pointer to the player to be dealt cards
+ *
+ *  returns: 0 if no error, and non-zero on error
+ */
+int deal_player_cards(struct player* target) {
+    struct card *to_deal;
+    for(int i=0; i<6; i++) {
+        to_deal = next_card();
+        add_card(target, to_deal);
+    }
+    
+    return 0;
+}
+
+/*
+ * Function: next_card
+ * -------------------
+ *  Return a pointer to the top card on the deck.
+ *  Removes that card from the deck. 
+ *
+ *  returns: pointer to the top card on the deck.
+ */
+struct card* next_card() {
+    if(deck_instance.top_card < 0) {
+        return NULL; // if there are no more cards left return null
+    }
+    else {
+        int current_top_card = deck_instance.top_card;
+        deck_instance.top_card--; // decerement the top card index because we just removed one
+        return &deck_instance.list[current_top_card];
+    }
+}
+
+/*
+ * Function: size
+ * --------------
+ *  Return the number of cards left in the current deck.
+ *
+ *  returns: number of cards left in the deck.
+ */
+size_t deck_size() {
+    if(deck_instance.top_card<0) { // if top card index if less than 0 then we have no more cards left
+        return 0;
+    }
+    else {
+        return deck_instance.top_card + 1; // there is always one more card than the index of the current top card
+    }
 }
