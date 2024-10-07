@@ -66,7 +66,7 @@ int deal_player_cards(struct player* target) {
     // initialize the card pointer
     struct card *to_deal;
 
-    for(int i=0; i<6; i++) {
+    for(int i=0; i<7; i++) {
         to_deal = next_card();
         add_card(target, to_deal); // call add_card for the player
     }
