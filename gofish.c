@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(int args, char* argv[]) 
+int main(int args, char *argv[])
 {
   fprintf(stdout, "Put your code here.");
 
@@ -10,11 +10,12 @@ int main(int args, char* argv[])
     start program while loop
     shuffle deck
     deal cards to player and robot
+    set round_num to 0
 
     start current game while loop
     print hand and books
     use a variable called round_num or something and check if it is even or odd. even means human picks card odd means robot picks
-    
+
     EVEN:
     prompt human player for rank
     check valid rank
@@ -35,5 +36,4 @@ int main(int args, char* argv[])
     if yes then continue
     if no then break from loop and exit program
   */
-
 }
