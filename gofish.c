@@ -9,6 +9,10 @@ int main(int args, char *argv[])
     when a player correctly asks if another player has a certain card they get to go again
     check if there are any cards left when you go to pick up, play accordingly from there
     memory needs to be freed after a game
+    if a player has no cards they must draw and skip the asking turn
+    if you run out of cards to draw then just prompt asking until someone wins
+    check to make sure that a card is in the players hand when they choose a rank
+
   */
 
   /*

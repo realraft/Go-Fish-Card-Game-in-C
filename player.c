@@ -1,4 +1,6 @@
 #include "player.h"
+#include "time.h"
+#include "stdio.h"
 
 /*
  * Instance Variables: user, computer
@@ -279,7 +281,30 @@ int game_over(struct player *target)
  *
  *   Return: 0 if no error, and non-zero on error.
  */
-int reset_player(struct player *target);
+int reset_player(struct player *target)
+{
+    struct hand *iterator = target->card_list;
+    struct hand *temp;
+
+    // remove cards from hand
+    while (iterator != NULL)
+    {
+        temp = iterator;
+        iterator = iterator->next;
+        remove_card(target, &(temp->top));
+    }
+
+    for (int i = 0; i < 7; i++)
+    {
+        target->book[i] = '\0';
+    }
+
+    // initialize default values just in case
+    target->card_list = NULL;
+    target->hand_size = 0;
+
+    return 0;
+}
 
 /*
  * Function: computer_play
@@ -292,7 +317,23 @@ int reset_player(struct player *target);
  *
  *   Rank: return a valid selected rank
  */
-char computer_play(struct player *target);
+char computer_play(struct player *target)
+{
+    if (target->hand_size == 0) // we cant pick a rank if there are no cards to pick from
+    {
+        return '0';
+    }
+    
+    int random_index = rand() % (target->hand_size); // random number 0 to hand_size-1
+    struct hand *iterator = target->card_list;
+
+    for (int i = 0; i < random_index; i++)
+    {
+            iterator = iterator->next;
+    }
+
+    return iterator->top.rank;
+}
 
 /*
  * Function: user_play
@@ -307,4 +348,21 @@ char computer_play(struct player *target);
  *
  *   returns: return a valid selected rank
  */
-char user_play(struct player *target);
+char user_play(struct player *target)
+{
+    char rank[3];
+
+    while (1)
+    {
+        printf("Player 1's turn, enter a Rank: ");
+        scanf("%2s", rank); // read user input, 2 chars needed for '\n'
+
+        if (search(target, rank[0]) == 1)
+        {
+            break;
+        }
+        printf("Error - must have at least one card from rank to play");
+    }
+
+    return rank[0];
+}
