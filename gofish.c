@@ -1,10 +1,15 @@
 #include <stdio.h>
+#include <time.h>
+#include "gofish.h"
 
 int main(int args, char *argv[])
 {
-  fprintf(stdout, "Put your code here.");
-
-  /*
+    while (1) // start program while loop
+    {
+        shuffle();
+    }
+    printf("Exiting.")
+    /*
     Things to think about in psuedo code:
     when a player correctly asks if another player has a certain card they get to go again
     check if there are any cards left when you go to pick up, play accordingly from there
@@ -13,9 +18,9 @@ int main(int args, char *argv[])
     if you run out of cards to draw then just prompt asking until someone wins
     check to make sure that a card is in the players hand when they choose a rank
 
-  */
+    */
 
-  /*
+    /*
     COMMENT PSUEDOCODE BEGINS
 
     start program while loop
@@ -46,5 +51,5 @@ int main(int args, char *argv[])
     prompt user to want to play again
     if yes then continue
     if no then break from loop and exit program
-  */
+    */
 }

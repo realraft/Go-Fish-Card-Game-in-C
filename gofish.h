@@ -1,9 +1,8 @@
 #ifndef GOFISH_H
 #define GOFISH_H
 
-/*
-   Define any prototype functions
-   for gofish.h here.
-*/
+#include <stdlib.h>
+#include "player.h"
+#include "deck.h"
 
 #endif

@@ -221,9 +221,9 @@ int transfer_cards(struct player *src, struct player *dest, char rank)
     struct hand *temp;
     int count = 0;
 
-    while (iterator != NULL)
+    while (iterator != NULL) // loop through hand
     {
-        if (iterator->top.rank == rank)
+        if (iterator->top.rank == rank) // if card found then remove it and go to next card
         {
             add_card(dest, &(iterator->top));
             temp = iterator;
@@ -323,13 +323,13 @@ char computer_play(struct player *target)
     {
         return '0';
     }
-    
+
     int random_index = rand() % (target->hand_size); // random number 0 to hand_size-1
     struct hand *iterator = target->card_list;
 
     for (int i = 0; i < random_index; i++)
     {
-            iterator = iterator->next;
+        iterator = iterator->next;
     }
 
     return iterator->top.rank;
