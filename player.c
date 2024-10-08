@@ -6,8 +6,8 @@
  *
  *  We only support 2 users: a human and a computer
  */
-struct player user;
-struct player computer;
+struct player user = {.book = {'\0', '\0', '\0', '\0', '\0', '\0', '\0'}};     // initialize book to null char
+struct player computer = {.book = {'\0', '\0', '\0', '\0', '\0', '\0', '\0'}}; // initialize book to null char
 
 /*
  * Function: add_card
@@ -65,8 +65,8 @@ int remove_card(struct player *target, struct card *old_card)
     // loop through linked list until desired card is found or end of list is hit
     while (iterator != NULL && (iterator->top.rank != old_card->rank || iterator->top.suit != old_card->suit))
     {
-    previous = iterator;
-    iterator = iterator->next;
+        previous = iterator;
+        iterator = iterator->next;
     }
 
     if (iterator == NULL) // card to remove is not in the hand or hand is empty
@@ -85,6 +85,8 @@ int remove_card(struct player *target, struct card *old_card)
 
     free(iterator); // free memory of removed card
 
+    target->hand_size--;
+
     return 0;
 }
 
@@ -99,7 +101,74 @@ int remove_card(struct player *target, struct card *old_card)
  *
  *  Return: a char that indicates the book that was added; return 0 if no book added.
  */
-char check_add_book(struct player *target);
+char check_add_book(struct player *target)
+{
+    if (target->hand_size < 4) // we can't have a book if there are less than 4 cards in a hand
+    {
+        return '0';
+    }
+
+    int rank_count[13] = {0}; // array to count the occurance of the rank in the same index below
+    char ranks[13] = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
+
+    struct hand *iterator = target->card_list;
+    char current_rank;
+
+    while (iterator != NULL) // loop through hand and increment required index
+    {
+        current_rank = iterator->top.rank;
+        for (int i = 0; i < 13; i++)
+        {
+            if (ranks[i] == current_rank)
+            {
+                rank_count[i]++;
+                break; // once we incrememnt the required rank then break from rank loop
+            }
+        }
+        iterator = iterator->next;
+    }
+
+    struct hand *temp;
+
+    // check for rank count of 4 (books)
+    for (int i = 0; i < 13; i++)
+    {
+        if (rank_count[i] == 4)
+        {
+            current_rank = ranks[i];
+
+            // remove book rank cards from hand
+            iterator = target->card_list;
+            while (iterator != NULL)
+            {
+                if (iterator->top.rank == current_rank)
+                {
+                    temp = iterator;
+                    iterator = iterator->next;
+                    remove_card(target, &(temp->top));
+                }
+                else
+                {
+                    iterator = iterator->next;
+                }
+            }
+
+            // add rank to book array
+            for (int j = 0; j < 7; j++)
+            {
+                if (target->book[j] == '\0')
+                {
+                    target->book[j] = current_rank;
+                    break;
+                }
+            }
+
+            return current_rank;
+        }
+    }
+
+    return '0';
+}
 
 /*
  * Function: search
@@ -144,7 +213,29 @@ int search(struct player *target, char rank)
  *   Return: 0 if no cards found/transferred, <0 if error, otherwise
  *   return value indicates number of cards transferred
  */
-int transfer_cards(struct player *src, struct player *dest, char rank);
+int transfer_cards(struct player *src, struct player *dest, char rank)
+{
+    struct hand *iterator = src->card_list;
+    struct hand *temp;
+    int count = 0;
+
+    while (iterator != NULL)
+    {
+        if (iterator->top.rank == rank)
+        {
+            add_card(dest, &(iterator->top));
+            temp = iterator;
+            iterator = iterator->next;
+            remove_card(src, &(temp->top));
+            count++;
+        }
+        else
+        {
+            iterator = iterator->next;
+        }
+    }
+    return count;
+}
 
 /*
  * Function: game_over
@@ -156,7 +247,26 @@ int transfer_cards(struct player *src, struct player *dest, char rank);
  *
  *   Return: 1 if game is over, 0 if game is not over
  */
-int game_over(struct player *target);
+int game_over(struct player *target)
+{
+    char current_book = target->book[0];
+    int count = 0;
+
+    for (int i = 0; i < 7; i++)
+    {
+        if (target->book[i] != '\0')
+        {
+            count++;
+        }
+    }
+
+    if (count == 7)
+    {
+        return 1;
+    }
+
+    return 0;
+}
 
 /*
  * Function: reset_player
