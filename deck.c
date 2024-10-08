@@ -21,7 +21,7 @@ int shuffle()
 {
     // initialize variables for deck creation
     char suits[4] = {'S', 'H', 'D', 'C'};
-    char ranks[13] = {'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'};
+    char ranks[13] = {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
     int deck_index = 0;
 
     // fill deck with cards
@@ -31,7 +31,7 @@ int shuffle()
         {
             struct card to_add;
             to_add.suit = suits[i];
-            strcpy(to_add.rank, ranks[j]); // strcpy needed here because the rank can he 1 OR 2 characters long
+            to_add.rank = ranks[j];
 
             deck_instance.list[deck_index] = to_add;
             deck_index++;

@@ -5,6 +5,13 @@ int main(int args, char *argv[])
   fprintf(stdout, "Put your code here.");
 
   /*
+    Things to think about in psuedo code:
+    when a player correctly asks if another player has a certain card they get to go again
+    check if there are any cards left when you go to pick up, play accordingly from there
+    memory needs to be freed after a game
+  */
+
+  /*
     COMMENT PSUEDOCODE BEGINS
 
     start program while loop

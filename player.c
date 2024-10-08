@@ -19,7 +19,33 @@ struct player computer;
  *
  *  returns: return 0 if no error, non-zero otherwise
  */
-int add_card(struct player *target, struct card *new_card);
+int add_card(struct player *target, struct card *new_card)
+{
+    struct hand *to_add = (struct hand *)malloc(sizeof(struct hand)); // allocate memory for linked list
+
+    if (to_add == NULL) // if memory allocation failed then return -1
+    {
+        return -1;
+    }
+
+    // assign correct values to the hand to add
+    to_add->top = *new_card;
+    to_add->next = NULL;
+
+    if (target->card_list == NULL) // if the player doesn't already have a hand then assign them the hand
+    {
+        target->card_list = to_add;
+    }
+    else // player does have a hand then add the new card to the front
+    {
+        to_add->next = target->card_list;
+        target->card_list = to_add;
+    }
+
+    target->hand_size++;
+
+    return 0;
+}
 
 /*
  * Function: remove_card
@@ -31,7 +57,36 @@ int add_card(struct player *target, struct card *new_card);
  *
  *  returns: return 0 if no error, non-zero otherwise
  */
-int remove_card(struct player *target, struct card *old_card);
+int remove_card(struct player *target, struct card *old_card)
+{
+    struct hand *iterator = target->card_list;
+    struct hand *previous = NULL;
+
+    // loop through linked list until desired card is found or end of list is hit
+    while (iterator != NULL && (iterator->top.rank != old_card->rank || iterator->top.suit != old_card->suit))
+    {
+    previous = iterator;
+    iterator = iterator->next;
+    }
+
+    if (iterator == NULL) // card to remove is not in the hand or hand is empty
+    {
+        return -1;
+    }
+
+    if (previous != NULL) // if card to remove is not the first in the linked list
+    {
+        previous->next = iterator->next;
+    }
+    else // if card to remove is the first in the linked list
+    {
+        target->card_list = iterator->next;
+    }
+
+    free(iterator); // free memory of removed card
+
+    return 0;
+}
 
 /*
  * Function: check_add_book
@@ -56,7 +111,23 @@ char check_add_book(struct player *target);
  *
  *  Return: If the player has a card of that rank, return 1, else return 0
  */
-int search(struct player *target, char rank);
+int search(struct player *target, char rank)
+{
+    struct hand *iterator = target->card_list;
+
+    // loop through linked list until desired rank is found or end of list is hit
+    while (iterator != NULL)
+    {
+        if (iterator->top.rank == rank)
+        {
+            return 1;
+        }
+
+        iterator = iterator->next;
+    }
+
+    return 0;
+}
 
 /*
  * Function: transfer_cards
