@@ -46,7 +46,7 @@ Player 1's Book -
 Player 2's Book - 9
 Player 1's turn, enter a Rank: 
 ```
-Play until a player has 7 books and choose to play again.
+Computer will play automatically. Play will continue until a player has 7 books.
 ```
 Player 1's Hand - 8D
 Player 1's Book - 3 2 J A 6 Q
@@ -64,9 +64,7 @@ Player 1 Wins! 7-6
 
 Do you want to play again [Y/N]: 
 ```
-Entering Y will start a new game.
-
-Entering N will exit the program.
+Upon a winner the user will be prompted to play again. 'Y/y' will start a new game and 'N/n' will exit the program.
 
 ### Project in Retrospect
 There are some things I would change about the project if I could go back and do it again. First, I would have never used T on the backend if I knew that printing 10 on the frontend was a requirement. Second, I wouldn't have used an if statement to diverge between two large sections of code depending on if it was the human or computers turn. Instead, I would write one function and simply provide the items that will change between players in the arguments of the function. Third, I would have planned better for the new line characters and included them in the regular print statements to save on lines of code. Altogether, I am proud of the working finished product for my first project in a new coding language to me, and I am also happy with the lessons I learned with pointers and memory allocation.
