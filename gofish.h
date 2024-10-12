@@ -10,7 +10,7 @@
 
 int print_hand_books(struct player *one, struct player *two);
 
-int go_fish(struct player *target, char rank);
+int go_fish(struct player *target, char rank, int round_num);
 
 int get_book_count(struct player *target);
 

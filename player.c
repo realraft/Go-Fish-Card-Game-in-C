@@ -251,7 +251,6 @@ int transfer_cards(struct player *src, struct player *dest, char rank)
  */
 int game_over(struct player *target)
 {
-    char current_book = target->book[0];
     int count = 0;
 
     for (int i = 0; i < 7; i++)
@@ -332,6 +331,8 @@ char computer_play(struct player *target)
         iterator = iterator->next;
     }
 
+    printf("Player 2's turn, enter a Rank: %c\n", iterator->top.rank);
+
     return iterator->top.rank;
 }
 
@@ -355,13 +356,18 @@ char user_play(struct player *target)
     while (1)
     {
         printf("Player 1's turn, enter a Rank: ");
-        scanf("%2s", rank); // read user input, 2 chars needed for '\n'
+        scanf("%2s", rank);                   // read user input, 2 chars needed for '\n'
+        if (rank[0] == '1' && rank[1] == '0') // convert 10 to T for back-end purposes
+        {
+            rank[0] = 'T';
+        }
 
         if (search(target, rank[0]) == 1)
         {
             break;
         }
         printf("Error - must have at least one card from rank to play");
+        printf("\n");
     }
 
     return rank[0];

@@ -2,18 +2,21 @@
 
 int main(int args, char *argv[])
 {
-    int round_num; // tracker for the number of rounds played in a game
-    char selected_rank; // user selected rank
-    struct card *newest_card; // used to get the info of cards drawn from deck
-    char play_again[2]; // storage for user prompt to play again
+    int round_num;        // tracker for the number of rounds played in a game
+    char selected_rank;   // user selected rank
+    char play_again[2];   // storage for user prompt to play again
+    char lower_response;  // storage for lowercase of user prompt
+    int continue_playing; // bool for if user would like to play again
+    char book_added;      // storage for the book added char
 
     while (1) // start program while loop
     {
+        printf("Shuffling deck...\n");
         shuffle();
         deal_player_cards(&user);
         deal_player_cards(&computer);
         round_num = 0;
-        
+
         while (1) // start game loop
         {
             print_hand_books(&user, &computer);
@@ -21,45 +24,81 @@ int main(int args, char *argv[])
             // check if it is player 1 or 2 turn
             if (round_num % 2 == 0) // player 1 turn
             {
-                selected_rank = user_play(&user);
-                if (search(&computer, selected_rank)) // computer has user selected card
+                while (1) // start turn loop
                 {
-                    // IMPLEMENT PRINT AND TRANSFER
-                }
-                else // computer does not have user selected card
-                {
-                    go_fish(&user, selected_rank);
-                }
+                    selected_rank = user_play(&user);
+                    if (search(&computer, selected_rank)) // computer has user selected card
+                    {
+                        correct_guess(&computer, &user, selected_rank, round_num);
+                        book_added = check_add_book(&user);
+                        if (book_added != '0')
+                        {
+                            printf("    - Player 1 books %c\n", book_added);
+                        }
 
-                /*
-                check add book needs to be moved into the go fish and search portions of the if statement
-                so that the logic for a player going again if they guess correctly 
-                */
-                check_add_book(&user);
+                        if (game_over(&user)) // check if player 1 won
+                        {
+                            break; // break turn loop if player 1 won
+                        }
+
+                        printf("    - Player 1 gets another turn\n");
+                        print_hand_books(&user, &computer);
+                    }
+                    else // computer does not have user selected card
+                    {
+                        go_fish(&user, selected_rank, round_num);
+                        book_added = check_add_book(&user);
+                        if (book_added != '0')
+                        {
+                            printf("    - Player 1 books %c\n", book_added);
+                        }
+                        break; // break turn loop
+                    }
+                }
 
                 if (game_over(&user)) // check if player 1 won
                 {
-                    printf("Player 1 Wins! %d-%d", get_book_count(&user), get_book_count(&computer));
+                    printf("Player 1 Wins! %d-%d\n", get_book_count(&user), get_book_count(&computer));
                     break; // break game loop
                 }
             }
             else // player 2 turn
             {
-                selected_rank = computer_play(&computer);
-                if (search(&user, selected_rank)) // computer has user selected card
+                while (1) // start turn loop
                 {
-                    // IMPLEMENT PRINT AND TRANSFER
-                }
-                else // computer does not have user selected card
-                {
-                    go_fish(&computer, selected_rank);
-                }
+                    selected_rank = computer_play(&computer);
+                    if (search(&user, selected_rank)) // user has computer selected card
+                    {
+                        correct_guess(&user, &computer, selected_rank, round_num);
+                        book_added = check_add_book(&computer);
+                        if (book_added != '0')
+                        {
+                            printf("    - Player 2 books %c", book_added);
+                        }
 
-                check_add_book(&computer);
+                        if (game_over(&computer)) // check if player 2 won
+                        {
+                            break; // break turn loop if player 2 won
+                        }
+
+                        printf("    - Player 2 gets another turn\n");
+                        print_hand_books(&user, &computer);
+                    }
+                    else // user does not have computer selected card
+                    {
+                        go_fish(&computer, selected_rank, round_num);
+                        book_added = check_add_book(&computer);
+                        if (book_added != '0')
+                        {
+                            printf("    - Player 2 books %c\n", book_added);
+                        }
+                        break; // break turn loop
+                    }
+                }
 
                 if (game_over(&computer)) // check if player 2 won
                 {
-                    printf("Player 2 Wins! %d-%d", get_book_count(&computer), get_book_count(&user));
+                    printf("Player 2 Wins! %d-%d\n", get_book_count(&computer), get_book_count(&user));
                     break; // break game loop
                 }
             }
@@ -67,70 +106,72 @@ int main(int args, char *argv[])
             round_num++;
         }
 
-        // prompt user to play again
-        printf("Do you want to play again [Y/N]: ");
-        scanf("%2c", play_again);
-        if (to_lower(play_again[0]) != 'y')
+        while (1)
+        {
+            // prompt user to play again
+            printf("Do you want to play again [Y/N]: ");
+            scanf("%1s", play_again);
+            // convert to lowercase for comparison
+            lower_response = tolower(play_again[0]);
+
+            // check for valid input
+            if (lower_response == 'y' || lower_response == 'n')
+            {
+                if (lower_response != 'y') // assign continue playing boolean
+                {
+                    continue_playing = 0;
+                }
+                else
+                {
+                    continue_playing = 1;
+                }
+                break;
+            }
+            else
+            {
+                printf("Invalid input. Please enter 'Y' or 'N'.\n");
+            }
+        }
+
+        if (continue_playing == 0) // if user said N then break program loop
         {
             break;
         }
+
+        // reset the game back to play again
+        round_num = 0;
+        reset_player(&user);
+        reset_player(&computer);
+        printf("\n");
     }
     printf("Exiting.");
-    /*
-    Things to think about in psuedo code:
-    when a player correctly asks if another player has a certain card they get to go again
-    check if there are any cards left when you go to pick up, play accordingly from there
-    memory needs to be freed after a game
-    if a player has no cards they must draw and skip the asking turn
-    if you run out of cards to draw then just prompt asking until someone wins
-    check to make sure that a card is in the players hand when they choose a rank
-
-    */
-
-    /*
-    COMMENT PSUEDOCODE BEGINS
-
-    start program while loop
-    shuffle deck
-    deal cards to player and robot
-    set round_num to 0
-
-    start current game while loop
-    print hand and books
-    use a variable called round_num or something and check if it is even or odd. even means human picks card odd means robot picks
-
-    EVEN:
-    prompt human player for rank
-    check valid rank
-    check robot hand for card and transfer cards to human player if robot possesses one, otherwise draw card
-    print this process
-    check for books in human, if they exist remove the 4 cards from hand and update books
-    check win condition and exit current while loop if true and declare winner
-
-    ODD:
-    randomly pick a rank in robot hand
-    check if human hand has card and transfer if needed, otherwise draw card
-    print this process
-    check for books in robot, if they exist remove the 4 cards from hand and update books
-    check win condition and exit current while loop if true and declare winner
-
-    exit game while loop
-    prompt user to want to play again
-    if yes then continue
-    if no then break from loop and exit program
-    */
+    return 0;
 }
 
 int print_hand_books(struct player *one, struct player *two)
 {
+    printf("\n");
     struct hand *iterator = one->card_list;
 
-    // print player 1 hand
+    //  print player 1 hand
     printf("Player 1's Hand - ");
     while (iterator != NULL)
     {
-        printf("%c%c ", iterator->top.suit, iterator->top.rank);
+        printf("%c%c ", iterator->top.rank, iterator->top.suit);
+        iterator = iterator->next;
     }
+
+    printf("\n");
+
+    //  print player 2 hand (for testing)
+    /*iterator = two->card_list;
+    printf("Player 2's Hand - ");
+    while (iterator != NULL)
+    {
+        printf("%c%c ", iterator->top.rank, iterator->top.suit);
+        iterator = iterator->next;
+    }
+    printf("\n");*/
 
     // print player 1 book
     printf("Player 1's Book - ");
@@ -146,6 +187,8 @@ int print_hand_books(struct player *one, struct player *two)
         }
     }
 
+    printf("\n");
+
     // print player 2 book
     printf("Player 2's Book - ");
     for (int i = 0; i < 7; i++)
@@ -160,20 +203,43 @@ int print_hand_books(struct player *one, struct player *two)
         }
     }
 
+    printf("\n");
+
+    // printf("p1 hand %d\n", one->hand_size);
+    // printf("p2 hand %d\n", two->hand_size);
+
     return 0;
 }
 
-int go_fish(struct player *target, char rank)
+int go_fish(struct player *target, char rank, int round_num)
 {
-    printf("    - Player 2 has no %c's", rank);
-    struct card *newest_card = next_card(); // get next card from deck
-    add_card(&user, newest_card); // add card to user hand
-    printf("    - Go Fish, Player 1 draws %c%c", newest_card->suit, newest_card->rank);
+    if (round_num % 2 == 0)
+    {
+        printf("    - Player 2 has no %c's", rank);
+        printf("\n");
+
+        struct card *newest_card = next_card(); // get next card from deck
+        add_card(target, newest_card);          // add card to target hand
+
+        printf("    - Go Fish, Player 1 draws %c%c", newest_card->rank, newest_card->suit);
+        printf("\n");
+    }
+    else
+    {
+        printf("    - Player 1 has no %c's", rank);
+        printf("\n");
+
+        struct card *newest_card = next_card(); // get next card from deck
+        add_card(target, newest_card);          // add card to target hand
+
+        printf("    - Go Fish, Player 2 draws %c%c", newest_card->rank, newest_card->suit);
+        printf("\n");
+    }
+    return 0;
 }
 
 int get_book_count(struct player *target)
 {
-    char current_book = target->book[0];
     int count = 0;
 
     for (int i = 0; i < 7; i++)
@@ -189,11 +255,12 @@ int get_book_count(struct player *target)
 
 int correct_guess(struct player *src, struct player *dest, char rank, int round_num)
 {
-    char src_cards[3][2]; // cards to be transfered
+    char src_cards[3][2];  // cards to be transfered
     char dest_cards[3][2]; // cards of rank that destination owns
 
     // initialize the card arrays with default '00'
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
         src_cards[i][0] = '0';
         src_cards[i][1] = '0';
         dest_cards[i][0] = '0';
@@ -212,10 +279,11 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
             src_cards[index][1] = iterator->top.suit;
             index++;
         }
+        iterator = iterator->next;
     }
 
     iterator = dest->card_list; // reset iterator
-    index = 0; // reset index
+    index = 0;                  // reset index
 
     // loop and store all cards destination owns of rank
     while (iterator != NULL)
@@ -225,8 +293,8 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
             dest_cards[index][0] = iterator->top.rank;
             dest_cards[index][1] = iterator->top.suit;
             index++;
-            index++;
         }
+        iterator = iterator->next;
     }
 
     if (round_num % 2 == 0) // user turn so player 2 printed first
@@ -247,7 +315,7 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
                 }
             }
         }
-
+        printf("\n");
         // print for cards owned
         printf("    - Player 1 has ");
         for (int i = 0; i < 3; i++)
@@ -264,6 +332,7 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
                 }
             }
         }
+        printf("\n");
     }
     else // computer turn so player 1 printed first
     {
@@ -283,7 +352,7 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
                 }
             }
         }
-
+        printf("\n");
         // print for cards owned
         printf("    - Player 2 has ");
         for (int i = 0; i < 3; i++)
@@ -300,6 +369,7 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
                 }
             }
         }
+        printf("\n");
     }
 
     // transfer cards
