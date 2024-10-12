@@ -18,6 +18,6 @@ debug:$(OBJECTS)
 	gcc $(CFLAGS) -o $@ $(OBJECTS)
 
 clean:
-	del /Q gofish.o player.o deck.o gofish.exe
+	rm -rf $(OBJECTS) $(EXECUTABLE)
 
 
