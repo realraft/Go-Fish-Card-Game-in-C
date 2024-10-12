@@ -27,13 +27,24 @@ int main(int args, char *argv[])
                 while (1) // start turn loop
                 {
                     selected_rank = user_play(&user);
-                    if (search(&computer, selected_rank)) // computer has user selected card
+                    if (selected_rank == '0') // player had no cards
+                    {
+                        printf("No cards in hand, going fishing...\n");
+                    }
+                    if (selected_rank != '0' && search(&computer, selected_rank)) // computer has user selected card
                     {
                         correct_guess(&computer, &user, selected_rank, round_num);
                         book_added = check_add_book(&user);
                         if (book_added != '0')
                         {
-                            printf("    - Player 1 books %c\n", book_added);
+                            if (book_added == 'T')
+                            {
+                                printf("    - Player 1 books 10\n");
+                            }
+                            else
+                            {
+                                printf("    - Player 1 books %c\n", book_added);
+                            }
                         }
 
                         if (game_over(&user)) // check if player 1 won
@@ -50,7 +61,14 @@ int main(int args, char *argv[])
                         book_added = check_add_book(&user);
                         if (book_added != '0')
                         {
-                            printf("    - Player 1 books %c\n", book_added);
+                            if (book_added == 'T')
+                            {
+                                printf("    - Player 1 books 10\n");
+                            }
+                            else
+                            {
+                                printf("    - Player 1 books %c\n", book_added);
+                            }
                         }
                         break; // break turn loop
                     }
@@ -67,13 +85,24 @@ int main(int args, char *argv[])
                 while (1) // start turn loop
                 {
                     selected_rank = computer_play(&computer);
+                    if (selected_rank == '0') // player had no cards
+                    {
+                        printf("No cards in hand, going fishing...\n");
+                    }
                     if (search(&user, selected_rank)) // user has computer selected card
                     {
                         correct_guess(&user, &computer, selected_rank, round_num);
                         book_added = check_add_book(&computer);
                         if (book_added != '0')
                         {
-                            printf("    - Player 2 books %c", book_added);
+                            if (book_added == 'T')
+                            {
+                                printf("    - Player 2 books 10\n");
+                            }
+                            else
+                            {
+                                printf("    - Player 2 books %c\n", book_added);
+                            }
                         }
 
                         if (game_over(&computer)) // check if player 2 won
@@ -90,7 +119,14 @@ int main(int args, char *argv[])
                         book_added = check_add_book(&computer);
                         if (book_added != '0')
                         {
-                            printf("    - Player 2 books %c\n", book_added);
+                            if (book_added == 'T')
+                            {
+                                printf("    - Player 2 books 10\n");
+                            }
+                            else
+                            {
+                                printf("    - Player 2 books %c\n", book_added);
+                            }
                         }
                         break; // break turn loop
                     }
@@ -157,18 +193,32 @@ int print_hand_books(struct player *one, struct player *two)
     printf("Player 1's Hand - ");
     while (iterator != NULL)
     {
-        printf("%c%c ", iterator->top.rank, iterator->top.suit);
+        if (iterator->top.rank == 'T')
+        {
+            printf("10%c ", iterator->top.suit);
+        }
+        else
+        {
+            printf("%c%c ", iterator->top.rank, iterator->top.suit);
+        }
         iterator = iterator->next;
     }
 
     printf("\n");
 
-    //  print player 2 hand (for testing)
-    /*iterator = two->card_list;
+    /*//  print player 2 hand (for testing)
+    iterator = two->card_list;
     printf("Player 2's Hand - ");
     while (iterator != NULL)
     {
-        printf("%c%c ", iterator->top.rank, iterator->top.suit);
+        if (iterator->top.rank == 'T')
+        {
+            printf("10%c ", iterator->top.suit);
+        }
+        else
+        {
+            printf("%c%c ", iterator->top.rank, iterator->top.suit);
+        }
         iterator = iterator->next;
     }
     printf("\n");*/
@@ -183,7 +233,14 @@ int print_hand_books(struct player *one, struct player *two)
         }
         else
         {
-            printf(" %c", one->book[i]);
+            if (one->book[i] == 'T')
+            {
+                printf(" 10");
+            }
+            else
+            {
+                printf(" %c", one->book[i]);
+            }
         }
     }
 
@@ -199,14 +256,18 @@ int print_hand_books(struct player *one, struct player *two)
         }
         else
         {
-            printf(" %c", two->book[i]);
+            if (two->book[i] == 'T')
+            {
+                printf(" 10");
+            }
+            else
+            {
+                printf(" %c", two->book[i]);
+            }
         }
     }
 
     printf("\n");
-
-    // printf("p1 hand %d\n", one->hand_size);
-    // printf("p2 hand %d\n", two->hand_size);
 
     return 0;
 }
@@ -215,25 +276,100 @@ int go_fish(struct player *target, char rank, int round_num)
 {
     if (round_num % 2 == 0)
     {
-        printf("    - Player 2 has no %c's", rank);
+        if (rank == '0') // there were no cards in a hand
+        {
+            struct card *newest_card = next_card(); // get next card from deck
+            add_card(target, newest_card);          // add card to target hand
+
+            if (newest_card->rank == 'T')
+            {
+                printf("    - Go Fish, Player 1 draws 10%c", newest_card->suit);
+            }
+            else
+            {
+                printf("    - Go Fish, Player 1 draws %c%c", newest_card->rank, newest_card->suit);
+            }
+            printf("\n");
+            return 0;
+        }
+
+        if (rank == 'T')
+        {
+            printf("    - Player 2 has no 10's");
+        }
+        else
+        {
+            printf("    - Player 2 has no %c's", rank);
+        }
         printf("\n");
 
-        struct card *newest_card = next_card(); // get next card from deck
-        add_card(target, newest_card);          // add card to target hand
+        if (deck_size() == 0)
+        {
+            printf("    - No cards left in the deck to draw.\n");
+        }
+        else
+        {
+            struct card *newest_card = next_card(); // get next card from deck
+            add_card(target, newest_card);          // add card to target hand
 
-        printf("    - Go Fish, Player 1 draws %c%c", newest_card->rank, newest_card->suit);
-        printf("\n");
+            if (newest_card->rank == 'T')
+            {
+                printf("    - Go Fish, Player 1 draws 10%c", newest_card->suit);
+            }
+            else
+            {
+                printf("    - Go Fish, Player 1 draws %c%c", newest_card->rank, newest_card->suit);
+            }
+            printf("\n");
+        }
     }
     else
     {
-        printf("    - Player 1 has no %c's", rank);
+        if (rank == '0') // there were no cards in a hand
+        {
+            struct card *newest_card = next_card(); // get next card from deck
+            add_card(target, newest_card);          // add card to target hand
+
+            if (newest_card->rank == 'T')
+            {
+                printf("    - Go Fish, Player 2 draws 10%c", newest_card->suit);
+            }
+            else
+            {
+                printf("    - Go Fish, Player 2 draws %c%c", newest_card->rank, newest_card->suit);
+            }
+            printf("\n");
+            return 0;
+        }
+        if (rank == 'T')
+        {
+            printf("    - Player 1 has no 10's");
+        }
+        else
+        {
+            printf("    - Player 1 has no %c's", rank);
+        }
         printf("\n");
 
-        struct card *newest_card = next_card(); // get next card from deck
-        add_card(target, newest_card);          // add card to target hand
+        if (deck_size() == 0)
+        {
+            printf("    - No cards left in the deck to draw.\n");
+        }
+        else
+        {
+            struct card *newest_card = next_card(); // get next card from deck
+            add_card(target, newest_card);          // add card to target hand
 
-        printf("    - Go Fish, Player 2 draws %c%c", newest_card->rank, newest_card->suit);
-        printf("\n");
+            if (newest_card->rank == 'T')
+            {
+                printf("    - Go Fish, Player 2 draws 10%c", newest_card->suit);
+            }
+            else
+            {
+                printf("    - Go Fish, Player 2 draws %c%c", newest_card->rank, newest_card->suit);
+            }
+            printf("\n");
+        }
     }
     return 0;
 }
@@ -255,7 +391,7 @@ int get_book_count(struct player *target)
 
 int correct_guess(struct player *src, struct player *dest, char rank, int round_num)
 {
-    char src_cards[3][2];  // cards to be transfered
+    char src_cards[3][2];  // cards to be transferred
     char dest_cards[3][2]; // cards of rank that destination owns
 
     // initialize the card arrays with default '00'
@@ -307,11 +443,25 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
             {
                 if (i == 0)
                 {
-                    printf("%c%c", src_cards[i][0], src_cards[i][1]);
+                    if (src_cards[i][0] == 'T')
+                    {
+                        printf("10%c", src_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf("%c%c", src_cards[i][0], src_cards[i][1]);
+                    }
                 }
                 else
                 {
-                    printf(", %c%c", src_cards[i][0], src_cards[i][1]);
+                    if (src_cards[i][0] == 'T')
+                    {
+                        printf(", 10%c", src_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf(", %c%c", src_cards[i][0], src_cards[i][1]);
+                    }
                 }
             }
         }
@@ -324,11 +474,25 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
             {
                 if (i == 0)
                 {
-                    printf("%c%c", dest_cards[i][0], dest_cards[i][1]);
+                    if (dest_cards[i][0] == 'T')
+                    {
+                        printf("10%c", dest_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf("%c%c", dest_cards[i][0], dest_cards[i][1]);
+                    }
                 }
                 else
                 {
-                    printf(", %c%c", dest_cards[i][0], dest_cards[i][1]);
+                    if (dest_cards[i][0] == 'T')
+                    {
+                        printf(", 10%c", dest_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf(", %c%c", dest_cards[i][0], dest_cards[i][1]);
+                    }
                 }
             }
         }
@@ -344,11 +508,25 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
             {
                 if (i == 0)
                 {
-                    printf("%c%c", src_cards[i][0], src_cards[i][1]);
+                    if (src_cards[i][0] == 'T')
+                    {
+                        printf("10%c", src_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf("%c%c", src_cards[i][0], src_cards[i][1]);
+                    }
                 }
                 else
                 {
-                    printf(", %c%c", src_cards[i][0], src_cards[i][1]);
+                    if (src_cards[i][0] == 'T')
+                    {
+                        printf(", 10%c", src_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf(", %c%c", src_cards[i][0], src_cards[i][1]);
+                    }
                 }
             }
         }
@@ -361,11 +539,25 @@ int correct_guess(struct player *src, struct player *dest, char rank, int round_
             {
                 if (i == 0)
                 {
-                    printf("%c%c", dest_cards[i][0], dest_cards[i][1]);
+                    if (dest_cards[i][0] == 'T')
+                    {
+                        printf("10%c", dest_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf("%c%c", dest_cards[i][0], dest_cards[i][1]);
+                    }
                 }
                 else
                 {
-                    printf(", %c%c", dest_cards[i][0], dest_cards[i][1]);
+                    if (dest_cards[i][0] == 'T')
+                    {
+                        printf(", 10%c", dest_cards[i][1]);
+                    }
+                    else
+                    {
+                        printf(", %c%c", dest_cards[i][0], dest_cards[i][1]);
+                    }
                 }
             }
         }

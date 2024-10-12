@@ -353,6 +353,11 @@ char user_play(struct player *target)
 {
     char rank[3];
 
+    if (target->hand_size == 0) // we cant pick a rank if there are no cards to pick from
+    {
+        return '0';
+    }
+
     while (1)
     {
         printf("Player 1's turn, enter a Rank: ");
